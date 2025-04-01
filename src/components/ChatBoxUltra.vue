@@ -1,16 +1,63 @@
 <template>
-  <div class="chat-container">
-    <div class="chat-box">
-      <div v-for="(message, index) in messages" :key="index" :class="['message', message.sent ? 'sent' : 'received']">
-        {{ message.text }}
+  <div class="chat">
+    <div class="chat-title">
+      <div class="avatar">
+        <img :src="avatarImage" alt="Avatar" />
+      </div>
+      <h1>Chat</h1>
+      <h2>Online</h2>
+    </div>
+    <div class="messages">
+      <div class="messages-content">
+        <div v-for="(msg, index) in messages" :key="index" :class="['message', { 'message-personal': msg.isPersonal }]">
+          <div class="avatar">
+            <img :src="msg.avatarImage" alt="Avatar" />
+          </div>
+          <div class="message-text">
+            <p>{{ msg.text }}</p>
+            <span class="timestamp">{{ msg.timestamp }}</span>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="input-container">
-      <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Escribe un mensaje..." />
-      <button @click="sendMessage">Enviar</button>
+    <div class="message-box">
+      <textarea v-model="message" placeholder="Escribe tu mensaje..." class="message-input"></textarea>
+      <button class="message-submit" @click="sendMessage">Enviar</button>
     </div>
   </div>
 </template>
+
+<script>
+
+import avatarImage from '@/assets/avatar.jpg';
+import './assets/chat.css';
+
+
+export default {
+  data() {
+    return {
+      messages: [],
+      message: '',
+      avatar: 'https://example.com/avatar.jpg',
+    };
+  },
+  methods: {
+    sendMessage() {
+      if (this.message.trim() !== '') {
+        const newMessage = {
+          text: this.message,
+          avatar: this.avatar,
+          timestamp: new Date().toLocaleTimeString(),
+          isPersonal: false, // Puedes cambiar esto dependiendo si es tu mensaje o no
+        };
+        this.messages.push(newMessage);
+        this.message = '';
+      }
+    },
+   },
+};
+</script>
+
 
 <script>
 import socket from '../service/socketService';  // Asegúrate de importar el socketService
