@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3000'); // Conexión al servidor
+const socket = io("https://chat-vue-gj39.onrender.com");
 
 export const sendMessage = (message) => {
   socket.emit('mensaje', message);

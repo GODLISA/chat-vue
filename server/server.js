@@ -6,7 +6,7 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 
-app.use(cors({ origin: "http://localhost:8080" })); // Habilitar CORS en Express
+app.use(cors({ origin: "*" })); // ✅ Permitir cualquier origen (o usa la URL de tu frontend)
 
 const io = new Server(server, {
   cors: {
@@ -28,6 +28,8 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(3000, () => {
-  console.log('Servidor corriendo en http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
+
