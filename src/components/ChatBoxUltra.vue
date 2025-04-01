@@ -2,7 +2,7 @@
   <div class="chat">
     <div class="chat-title">
       <div class="avatar">
-        <img :src="avatarImage" alt="Avatar" />
+        <img :src="avatar" alt="Avatar" />
       </div>
       <h1>Chat</h1>
       <h2>Online</h2>
@@ -11,7 +11,7 @@
       <div class="messages-content">
         <div v-for="(msg, index) in messages" :key="index" :class="['message', { 'message-personal': msg.isPersonal }]">
           <div class="avatar">
-            <img :src="msg.avatarImage" alt="Avatar" />
+            <img :src="msg.avatar" alt="Avatar" />
           </div>
           <div class="message-text">
             <p>{{ msg.text }}</p>
@@ -21,74 +21,63 @@
       </div>
     </div>
     <div class="message-box">
-      <textarea v-model="message" placeholder="Escribe tu mensaje..." class="message-input"></textarea>
+      <textarea v-model="newMessage" placeholder="Escribe tu mensaje..." class="message-input"></textarea>
       <button class="message-submit" @click="sendMessage">Enviar</button>
     </div>
   </div>
 </template>
 
 <script>
-
-import avatarImage from '@/assets/avatar.jpg';
-import './assets/chat.css';
-
-
-export default {
-  data() {
-    return {
-      messages: [],
-      message: '',
-      avatar: 'https://example.com/avatar.jpg',
-    };
-  },
-  methods: {
-    sendMessage() {
-      if (this.message.trim() !== '') {
-        const newMessage = {
-          text: this.message,
-          avatar: this.avatar,
-          timestamp: new Date().toLocaleTimeString(),
-          isPersonal: false, // Puedes cambiar esto dependiendo si es tu mensaje o no
-        };
-        this.messages.push(newMessage);
-        this.message = '';
-      }
-    },
-   },
-};
-</script>
-
-
-<script>
 import socket from '../service/socketService';  // Asegúrate de importar el socketService
+import avatarImage from '@/assets/avatar.jpg';  // Asegúrate de que esta ruta sea correcta
 
 export default {
-  name: 'ChatBox',
+  name: 'ChatBoxUltra',
   data() {
     return {
       newMessage: '',
       messages: [],
+      avatar: avatarImage,  // Usa la imagen importada
     };
   },
   methods: {
     sendMessage() {
       if (this.newMessage.trim() !== '') {
-        socket.emit('mensaje', this.newMessage); // Debe coincidir con el evento en server.js
+        // Crear el nuevo mensaje con la imagen de avatar
+        const newMessage = {
+          text: this.newMessage,
+          avatar: this.avatar,  // Usar avatar del data
+          timestamp: new Date().toLocaleTimeString(),
+          isPersonal: false, // Puedes cambiar esto dependiendo si es tu mensaje o no
+        };
 
-        this.messages.push({ text: this.newMessage, sent: true });
+        // Emitir el mensaje al servidor
+        socket.emit('mensaje', this.newMessage);
+
+        // Agregar el mensaje a la lista
+        this.messages.push(newMessage);
         this.newMessage = '';
       }
     }
   },
   mounted() {
     // Escuchar el evento para recibir mensajes del servidor
-    socket.on('mensaje', (message) => { // Debe coincidir con el evento en server.js
-      this.messages.push({ text: message, sent: false });
+    socket.on('mensaje', (message) => {
+      this.messages.push({
+        text: message,
+        avatar: this.avatar,  // Usar la misma imagen para mensajes recibidos
+        timestamp: new Date().toLocaleTimeString(),
+        isPersonal: false, // Cambiar dependiendo si es mensaje personal o recibido
+      });
     });
   },
   beforeUnmount() {
     // Limpiar eventos o recursos antes de que el componente se desmonte
-    socket.off('receiveMessage');
+    socket.off('mensaje');
   }
 };
 </script>
+
+<style scoped>
+  /* Aquí puedes agregar tus estilos CSS para el chat */
+</style>
